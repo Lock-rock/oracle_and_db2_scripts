@@ -28,7 +28,7 @@ select file_name from dba_data_files;
 
 Dynamically change parameter and Configure it in Primary side:
 alter system set log_archive_config='dg_config=(dbwr,standby)';
-
+alter system set log_archive_dest_1='location=/archive/cordysDB/arch valid_for=(all_logfiles,all_roles) db_unique_name=dbwr'
 alter system set log_archive_dest_2='service=standby noaffirm async valid_for=(online_logfiles,primary_role) db_unique_name=standby';
 
 ALTER SYSTEM SET LOG_ARCHIVE_DEST_STATE_2=ENABLE;
