@@ -1,0 +1,17 @@
+SBLPRDDB.0.db2iusr.DBPART000.20231019232645.001
+
+db2 "restore db SBLPRDDB from /bkpfs/full taken at 20231019232645 redirect generate script /bkpfs/full/SBLPRDDB_restore.clp"
+
+MAKE ALL DIRCTORY GIVEN IN CLIP FILE,
+
+vi SBLPRDDB_restore.sh
+
+chown -R db2iusr:staff SBLPRDDB_restore.sh
+
+chmod 775 SBLPRDDB_restore.sh
+
+db2 -tvf SBLPRDDB_restore.clp
+
+db2 rollforward db sbluatdb to end of logs and stop
+
+db2 "rollforward database SBLUATDB to end of logs and stop overflow log path (/archivelog/db2iusr/archlogs/)"
