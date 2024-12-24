@@ -1,0 +1,19 @@
+STOP DB2:
+
+STOP HADR (IF EXIST)
+db2 stop hadr on db DBNAME
+db2 connect to DBNAME
+db2 force application all; db2 force application all; db2 force application all; db2 force application all; db2 force application all; db2 force application all;db2 force application all; db2 force application all; db2 force application all; db2 force application all; db2 force application all; db2 force application all;db2 force application all; db2 force application all; db2 force application all; db2 force application all; db2 force application all; db2 force application all;
+db2 deactivate db DBNAME;
+db2 terminate
+
+START DB2
+
+STOP HADR (IF EXIST)
+db2 start hadr on db DBNAME as standby
+
+db2start
+db2 activate db DBNAME
+db2 connect to DBNAME
+
+db2 list applications;
