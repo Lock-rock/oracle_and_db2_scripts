@@ -1,0 +1,30 @@
+FOR DDL_BACKUP:
+
+db2look -d SBLPRDDB -z SIEBEL -tw CX_QUOTE_ASSET -e -xd -o /backup/02_March_2020/SIEBEL_CX_QUOTE_ASSET.ddl
+
+db2 -tvf CX_QUOTE_ASSET> CX_QUOTE_ASSET.out
+
+FOR DDL_IMPORT :-
+
+db2 import from /backup/05JULYWORK/ITGI_ACCUMULATION_MASTER_05JULY.ixf of ixf  modified by identityignore messages /backup/05JULYWORK/ITGI_ACCUMULATION_MASTER_05JULY.msg replace into ADMINISTRATOR.ACCUMULATION_MASTER
+
+FOR BACKUP_WITH DATA:
+
+db2 "export to /db2/BIPDB_BKP/CSC_MOTOR_RESTRICTION.ixf of ixf messages /db2/BIPDB_BKP/CSC_MOTOR_RESTRICTION.msg select * from ADMINISTRATOR.CSC_MOTOR_RESTRICTION"
+
+FOR IMPORT_WITH DATA:
+
+db2 "import from /db2/BIPDB_BKP/CSC_MOTOR_RESTRICTION.ixf of ixf modified by identityignore messages /db2/BIPDB_BKP/CSC_MOTOR_RESTRICTION1.msg replace into VIJAY.CSC_MOTOR_RESTRICTION"
+
+
+FOR LOB DATA:
+
+db2 "export to /backup/backupnemarine/OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC.ixf of ixf messages /backup/backupnemarine/OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC.msg select * from OEM_KYC.OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC"
+
+db2 "export to /backup/backupnemarine/OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC.del of del lobs to /backup/backupnemarine/lob2 modified by lobsinfile select * from OEM_KYC.OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC" 
+
+
+IMPORT FROM OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC.del OF DEL 
+                LOBS FROM OEM_TTIB_YHMEIHSML_KYC_UPLOAD_DOC.del.001.lob 
+                MODIFIED BY lobsinfile
+                INSERT INTO newtable
