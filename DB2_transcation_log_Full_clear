@@ -1,0 +1,23 @@
+check logfile size:
+
+db2 get db cfg for ITGI |grep LOGFILSIZ
+
+transaction that hold:
+
+db2 "select APPLID_HOLDING_OLDEST_XACT from table(mon_get_transaction_log(-2))"
+
+APPLID_HOLDING_OLDEST_XACT
+--------------------------
+                         7
+For stop trancations:s
+
+db2 "force application (7)"
+
+
+Increasing number of primary log files:
+
+db2 update db cfg for [database] using LOGPRIMARY [new value]
+
+Increasing number of secondary log files (works immediately):
+
+db2 update db cfg for [database] using LOGSECOND [new value] IMMEDIATE
