@@ -194,5 +194,87 @@ Once done
 Execute Manual19c upgrade scripts. ==============> If you need help in what script to Run I need to open a SR with upgrade team
 
 
+
 Regards
+
+
+
+##################################################################################################################################################################################################
+SELECT 'Throughput: '||
+       ROUND(SUM(v.value/1024/1024/1024),1) || ' GB so far @ ' ||
+       ROUND(SUM(v.value/1024/1024)/NVL((SELECT MIN(elapsed_seconds)
+            FROM v$session_longops
+            WHERE opname          LIKE 'RMAN: aggregate input'
+              AND sofar           != TOTALWORK
+              AND elapsed_seconds IS NOT NULL
+       ),SUM(v.value     /1024/1024)),2) || ' MB/sec'
+FROM gv$sesstat v, v$statname n, gv$session s
+WHERE v.statistic# = n.statistic#
+  AND n.name       = 'physical write total bytes'
+  AND v.sid        = s.sid
+  AND v.inst_id    = s.inst_id
+  AND s.program LIKE 'rman@%'
+GROUP BY n.name
+/
+
+
+Restore progress
+
+alter session set nls_date_format='DD-MON-YYYY HH24:MI:SS';
+set line 2222;
+set pages 2222;
+set long 6666;
+select sl.sid, sl.opname,
+to_char(100*(sofar/totalwork), '990.9')||'%' pct_done,
+sysdate+(TIME_REMAINING/60/60/24) done_by
+from v$session_longops sl, v$session s
+where sl.sid = s.sid
+and sl.serial# = s.serial#
+and sl.sid in (select sid from v$session where module like 'backup%' or module like 'restore%' or module like 'rman%')
+and sofar != totalwork
+and totalwork > 0
+/
+
+To Get Through Put
+
+SET HEAD OFF
+SELECT 'RMAN Throughput : '||
+ROUND(SUM(v.value/(power(2,30))),1) || ' GB so far ---> Per Second Throughput = ' ||
+ROUND(SUM(v.value /(power(2,30)))/NVL((SELECT MIN(elapsed_seconds)
+FROM v$session_longops
+WHERE opname LIKE 'RMAN: aggregate input'
+AND sofar != TOTALWORK
+AND elapsed_seconds IS NOT NULL
+),SUM(v.value /(power(2,30)))),2) || ' GB'
+FROM gv$sesstat v, v$statname n, gv$session s
+WHERE v.statistic# = n.statistic#
+AND n.name = 'physical write total bytes'
+AND v.sid = s.sid
+AND v.inst_id = s.inst_id
+AND s.program LIKE 'rman@%'
+GROUP BY n.name
+/
+
+
+Restore Progress 
+
+SELECT SID, SERIAL#, CONTEXT, SOFAR, TOTALWORK,
+ROUND(SOFAR/TOTALWORK*100,2) "%_COMPLETE"
+FROM gV$SESSION_LONGOPS
+WHERE OPNAME LIKE 'RMAN%'
+AND OPNAME NOT LIKE '%aggregate%'
+AND TOTALWORK != 0
+AND SOFAR != TOTALWORK order by 6 desc;
+
+
+Restore RMAN Channel Details
+
+select s.inst_id, a.sid, CLIENT_INFO Ch, a.STATUS,
+open_time, round(BYTES/1024/1024,2) "SOFAR Mb" , round(total_bytes/1024/1024,2)
+TotMb, io_count,
+round(BYTES/TOTAL_BYTES*100,2) "% Complete" , a.type, filename
+from gv$backup_async_io a, gv$session s
+where not a.STATUS in ('UNKNOWN') and s.status='ACTIVE' and a.STATUS <> 'FINISHED'
+and a.sid=s.sid order by 6 desc,7;
+#####################################################################################################################################################################################################
 
