@@ -1,0 +1,89 @@
+============================================db2 Installation ====================================================================
+cat /etc/hosts
+cd /db2
+gunzip v10.5fp10_aix64_universal_fixpack.tar.gz
+tar -xvf v10.5fp10_aix64_universal_fixpack.tar
+/db2
+ls -ltr
+tar -xvf DB2_Svr_10.5.0.3_AIX.tar
+df -sg .
+/db2/server
+./db2prereqcheck
+./db2_install
+Enter the full path of the base installation directory:
+------------------------------------------------
+/db2/IBM/db2/V10.5
+SERVER
+
+more /tmp/db2_install.log.19005836
+cd /db2/IBM
+cd /db2/universal
+./db2prereqcheck
+./installFixPack
+more /tmp/installFixPack.log.12714294
+./db2ls
+
+useradd -d /db2/home/db2fenc1 db2fenc1
+useradd -d /db2/home/db2iusr db2iusr
+
+
+it done with owner:(db2iusr any)
+cd instance
+./db2icrt -u db2fenc1 db2iusr
+
+# su - db2fenc1
+3004-614 Unable to change directory to "/db2/home/db2fenc1".
+        You are in "/home/guest" instead.
+
+# userdel db2fenc1
+# userdel db2iusr
+
+# su - db2fenc1
+
+mkdir -p /db2/home/bipinst1
+useradd -d /db2/home/db2fenc1 bipinst1
+
+# cd /db2/home/db2fenc1
+# ls -ltr
+total 8
+-rwxr-----    1 db2fenc1 staff           254 Nov 25 21:13 .profile
+
+cd /db2/IBM/V10.5/instance
+./db2icrt -u db2fenc1 db2iusr
+
+cd /db2/IBM/db2/V10.5/instance
+./db2icrt -u db2fenc1 db2iusr
+db2 list db directory
+db2start
+db2 list db directory
+db2top -d testzx
+
+
+db2 drop database test
+db2 get dbm cfg|more
+prtconf|more
+
+vmstat
+now check backup for restorataion.
+cd /backup
+chown db2iusr:staff /backup
+chown db2iusr:staff *
+# su - db2iusr
+db2 "restore db SOLIXDB from /backup/solixbackup taken at 20240516180329 redirect generate script /backup/solixbackup/SOLIXDB.clp"
+more restore.clp
+
+vi SOLIXDB.sh
+db2 -tvf SOLIXDB.clp
+db2top -d sblprddb
+db2 RESTORE DATABASE SBLPRDDB CONTINUE
+SOLIXDB.0.db2solix.DBPART000.20240516180329.001
+
+============================================================================================================================================================
+./db2icrt -u db2fenc1 bipinst1
+
+db2 get db cfg for <db_name> | grep -i restrict 
+
+db2 get database manager configuration  
+
+db2 drop database NEMARINE
+
