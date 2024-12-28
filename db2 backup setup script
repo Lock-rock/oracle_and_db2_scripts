@@ -1,0 +1,11 @@
+date | tee -a online_sbldevdb.out
+. /home/db2iusr/sqllib/db2profile
+db2 backup db sbldevdb online to /backup/full/new_backup_image/online_backup_image WITH 8 BUFFERS BUFFER 4098 PARALLELISM 4 COMPRESS INCLUDE LOGS | tee -a online_sbldevdb.out
+date | tee -a online_sbldevdb.out
+
+
+
+date | tee -a online_ITGI.out
+. /home/db2inst3/sqllib/db2profile
+db2 backup db ITGI online to /backup/full/new_backup_image/online_backup_image WITH 8 BUFFERS BUFFER 4098 PARALLELISM 4 COMPRESS INCLUDE LOGS | tee -a online_ITGI.out
+date | tee -a online_ITGI.out
